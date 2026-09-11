@@ -462,6 +462,12 @@ with no maximum height."
          (--map-when (null (cdr it)) (cons (car it) (+ (car it) usual-share)))
          (-map 'cdr))))
 
+(defun groovy-splash--size-change (frame)
+  "Handles size changes for the window.
+
+Receives FRAME from the hook, but doesn't really do anything with it."
+  (groovy-splash--redraw))
+
 ;;;###autoload
 (defun groovy-splash-show ()
   "Show the splash screen."
@@ -469,10 +475,9 @@ with no maximum height."
 
   (let ((splash-buffer (get-buffer-create "*groovy-splash*")))
     (buffer-disable-undo splash-buffer)
-    (groovy-splash--redraw t)
-    (switch-to-buffer splash-buffer))
-
-  (add-hook 'window-size-change-functions 'groovy-splash--redraw))
+    (with-current-buffer splash-buffer
+      (add-hook 'window-size-change-functions #'groovy-splash--size-change nil t))
+    (switch-to-buffer splash-buffer)))
 
 (when (boundp 'evil-buffer-regexps)
   (add-to-list 'evil-buffer-regexps '("^\\*groovy-splash\\*" . nil)))
